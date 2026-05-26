@@ -1,0 +1,32 @@
+apiVersion: v1
+entries:
+  bazarr:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2026-05-26T03:02:38.645124725Z"
+    dependencies:
+    - alias: bazarr
+      name: app-template
+      repository: https://bjw-s-labs.github.io/helm-charts
+      version: 4.6.2
+    - name: onepassworditem
+      repository: https://expectedbehaviors.github.io/OnePasswordItem-helm
+      version: 1.1.1
+    description: Bazarr subtitle manager for *arr stack. bjw-s app-template; optional
+      PostgreSQL (existingSecret) and 1Password secret injection.
+    digest: 491159040747d78c1eb892f5bb250942a8083851784a940b9465258a2e79a695
+    home: https://github.com/morpheus65535/bazarr
+    keywords:
+    - bazarr
+    - subtitles
+    - arr
+    - bjw-s
+    - app-template
+    kubeVersion: '>=1.22.0-0'
+    name: bazarr
+    sources:
+    - https://github.com/morpheus65535/bazarr
+    urls:
+    - https://expectedbehaviors.github.io/bazarr/bazarr-1.0.0.tgz
+    version: 1.0.0
+generated: "2026-05-26T03:02:38.637738706Z"
