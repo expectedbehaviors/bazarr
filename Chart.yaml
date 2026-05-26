@@ -2,7 +2,7 @@ apiVersion: v2
 name: bazarr
 description: Bazarr subtitle manager for *arr stack. bjw-s app-template; optional PostgreSQL (existingSecret) and 1Password secret injection.
 version: 1.0.0
-appVersion: "1.4.0"
+appVersion: "1.0.0"
 kubeVersion: ">=1.22.0-0"
 keywords:
   - bazarr
