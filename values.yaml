@@ -1,0 +1,123 @@
+# Baseline Bazarr. Override ingress host, persistence (existingClaim), postgresql-credentials secret, onepassworditem.items in your values.
+# Requires secret "postgresql-credentials" (hostname, port, username, password) for DB; optional 1Password sync via onepassworditem.
+
+bazarr:
+  global:
+    fullnameOverride: bazarr
+
+  defaultPodOptions:
+    annotations:
+      secret.reloader.stakater.com/reload: "bazarr,postgresql-credentials"
+    securityContext:
+      fsGroup: 1000
+      runAsGroup: 1000
+      runAsUser: 1000
+      fsGroupChangePolicy: "Always"
+
+  controllers:
+    main:
+      enabled: true
+      annotations:
+        argocd.argoproj.io/sync-wave: "1"
+      defaultContainerOptions:
+        image:
+          repository: linuxserver/bazarr
+          tag: development
+          pullPolicy: IfNotPresent
+      containers:
+        main:
+          env:
+            DOCKER_MODS: "ghcr.io/themepark-dev/theme.park:bazarr"
+            PGID: "1000"
+            PUID: "1000"
+            TP_HOTIO: "false"
+            TP_SCHEME: HTTPS
+            TP_THEME: aquamarine
+            TZ: UTC
+            UMASK: "2"
+            POSTGRES_ENABLED: "True"
+            POSTGRES_HOST:
+              secretKeyRef:
+                name: postgresql-credentials
+                key: hostname
+            POSTGRES_PORT:
+              secretKeyRef:
+                name: postgresql-credentials
+                key: port
+            POSTGRES_DATABASE: bazarr
+            POSTGRES_USERNAME:
+              secretKeyRef:
+                name: postgresql-credentials
+                key: username
+            POSTGRES_PASSWORD:
+              secretKeyRef:
+                name: postgresql-credentials
+                key: password
+          probes:
+            startup:
+              enabled: true
+              custom: true
+              spec:
+                failureThreshold: 60
+                periodSeconds: 5
+                successThreshold: 1
+                tcpSocket:
+                  port: 6767
+                timeoutSeconds: 1
+                initialDelaySeconds: 30
+          resources:
+            requests:
+              cpu: 50m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 2Gi
+          securityContext:
+            allowPrivilegeEscalation: true
+            privileged: true
+            readOnlyRootFilesystem: false
+            runAsGroup: 0
+            runAsNonRoot: false
+            runAsUser: 0
+
+  service:
+    main:
+      enabled: true
+      ports:
+        http:
+          enabled: true
+          port: 6767
+          protocol: HTTP
+
+  ingress:
+    main:
+      enabled: false
+      annotations: {}
+      hosts: []
+
+  persistence:
+    config:
+      enabled: true
+      type: persistentVolumeClaim
+      accessMode: ReadWriteOnce
+      size: 2Gi
+      storageClass: ""
+      globalMounts:
+        - path: /config
+    downloads:
+      enabled: true
+      type: emptyDir
+      globalMounts:
+        - path: /downloads
+    # Media mounts: override in instantiation with existingClaim per library path (e.g. same PVCs as Plex).
+    media:
+      enabled: true
+      type: emptyDir
+      globalMounts:
+        - path: /media
+
+# Optional: sync 1Password items to Kubernetes. Typically "postgresql-credentials" (hostname, port, username, password) and "bazarr" (app-specific). Create secret "postgresql-credentials" in namespace if not using onepassworditem.
+onepassworditem:
+  enabled: false
+  defaultVault: Kubernetes
+  items: []
